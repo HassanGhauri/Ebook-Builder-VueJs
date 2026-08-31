@@ -15,11 +15,16 @@
     "@tiptap/starter-kit": "^3.30.5",
     "@tiptap/vue-3": "^3.30.5",
     "dexie": "^4.4.5",
+    "docx": "^9.7.1",
+    "epub-gen": "^0.1.0",
+    "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.14.0",
+    "jspdf": "^4.2.1",
     "mammoth": "^1.12.2",
     "pinia": "^4.0.3",
     "vue": "^3.5.40",
-    "vue-draggable-plus": "^0.6.1"
+    "vue-draggable-plus": "^0.6.1",
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",
