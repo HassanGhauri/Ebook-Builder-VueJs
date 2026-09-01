@@ -1,13 +1,12 @@
 <!-- src/views/EditorView.vue -->
 <template>
-  <!-- Show entry page if no book is loaded -->
-  <EditorEntry v-if="!isBookLoaded" />
+  <!-- Show entry page if no book is loaded OR if we're on the /editor route (no specific book ID) -->
+  <EditorEntry v-if="!isBookLoaded || showEntryPage" />
   
-  <!-- Show full editor if book is loaded -->
+  <!-- Show full editor if book is loaded and we have a specific book ID -->
   <div v-else class="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
     <!-- Top Toolbar -->
     <EditorToolbar
-      :auto-save-status="autoSaveStatus"
       @import="showImportModal = true"
       @export="showExportModal = true"
       @preview="openPreview"
@@ -78,7 +77,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useBookStore } from '@/stores/bookStore'
 import { useStorage } from '@/composables/useStorage'
 import EditorContent from '@/components/editor/EditorContent.vue'
@@ -91,8 +90,16 @@ import BookPreview from '@/components/viewer/BookPreview.vue'
 import CoverGeneratorModal from '@/components/common/CoverGeneratorModal.vue'
 
 const route = useRoute()
+const router = useRouter()
 const store = useBookStore()
 const { autoSave, loadBook } = useStorage()
+
+// Check if we should show the entry page
+// Show entry page if we're on the /editor route (no specific ID)
+const showEntryPage = computed(() => {
+  // If route is exactly '/editor' or '/editor/' show entry page
+  return route.path === '/editor' || route.path === '/editor/'
+})
 
 // Check if a book is loaded (has at least one page)
 const isBookLoaded = computed(() => {
@@ -105,10 +112,6 @@ const showExportModal = ref(false)
 const showPreview = ref(false)
 const showCoverGenerator = ref(false)
 
-// Auto-save status
-const autoSaveStatus = ref('💾 Saved')
-let saveTimeout: ReturnType<typeof setTimeout> | null = null
-
 // Computed
 const currentPage = computed(() => store.currentPage)
 const pageTitle = computed({
@@ -119,16 +122,13 @@ const pageTitle = computed({
 // Methods
 const updateContent = (content: string) => {
   store.updatePageContent(content)
-  updateSaveStatus('✏️ Editing...')
 }
 
 const updatePageTitle = (title: string) => {
   store.updatePageTitle(title)
-  updateSaveStatus('✏️ Editing...')
 }
 
 const onBookImported = () => {
-  updateSaveStatus('📥 Book imported successfully!')
   store.setCurrentPage(0)
 }
 
@@ -136,43 +136,33 @@ const openPreview = () => {
   showPreview.value = true
 }
 
-const updateSaveStatus = (status: string) => {
-  autoSaveStatus.value = status
-  
-  if (saveTimeout) {
-    clearTimeout(saveTimeout)
-  }
-  
-  saveTimeout = setTimeout(() => {
-    autoSaveStatus.value = '💾 Saved'
-  }, 2000)
-}
-
 // Auto-save setup
 let stopAutoSave: (() => void) | null = null
 
-// Load book from route param if exists
+// Load book from route param if exists (only for /editor/:id)
 const loadBookFromRoute = async () => {
   const bookId = route.params.id as string
   if (bookId && bookId !== 'new') {
     const book = await loadBook(bookId)
     if (book) {
-      store.book = book
+      store.loadBookIntoStore(book)
     }
   }
 }
 
 onMounted(async () => {
+  // Only load from route param if there's an ID (for /editor/:id)
   await loadBookFromRoute()
-  stopAutoSave = autoSave(store.book)
+  
+  // Start auto-save if book is loaded
+  if (isBookLoaded.value) {
+    stopAutoSave = autoSave(store.book)
+  }
 })
 
 onUnmounted(() => {
   if (stopAutoSave) {
     stopAutoSave()
-  }
-  if (saveTimeout) {
-    clearTimeout(saveTimeout)
   }
 })
 </script>

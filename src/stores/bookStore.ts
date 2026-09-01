@@ -13,9 +13,12 @@ export const useBookStore = defineStore('book', () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
-    pages: [], // Start with empty pages
+    pages: [],
     currentPageIndex: 0,
   })
+
+  // Track the current book ID for "Continue Editing"
+  const currentBookId = ref<string | null>(null)
 
   // Getters
   const currentPage = computed(() => {
@@ -41,7 +44,6 @@ export const useBookStore = defineStore('book', () => {
     const index = book.value.pages.findIndex((p) => p.id === pageId)
     if (index > -1) {
       book.value.pages.splice(index, 1)
-      // Reorder remaining pages
       book.value.pages.forEach((page, i) => (page.order = i))
       if (book.value.currentPageIndex >= book.value.pages.length) {
         book.value.currentPageIndex = Math.max(0, book.value.pages.length - 1)
@@ -85,10 +87,16 @@ export const useBookStore = defineStore('book', () => {
     book.value.metadata.updatedAt = new Date().toISOString()
   }
 
+  // Set the current book ID
+  function setCurrentBookId(id: string) {
+    currentBookId.value = id
+  }
+
   // Reset method - creates a new empty book
   function $reset() {
+    const newId = crypto.randomUUID()
     book.value = {
-      id: crypto.randomUUID(),
+      id: newId,
       metadata: {
         title: 'My New Book',
         author: 'Anonymous',
@@ -98,12 +106,30 @@ export const useBookStore = defineStore('book', () => {
       pages: [],
       currentPageIndex: 0,
     }
+    currentBookId.value = newId
+  }
+
+  // Load a book into the store
+  function loadBookIntoStore(loadedBook: IBook) {
+    book.value = loadedBook
+    currentBookId.value = loadedBook.id
+  }
+
+  // Check if there's a book in progress (has pages)
+  function hasBookInProgress(): boolean {
+    return book.value.pages.length > 0
+  }
+
+  // Get the current book title
+  function getCurrentBookTitle(): string {
+    return book.value.metadata.title || 'Untitled Book'
   }
 
   return {
     book,
     currentPage,
     totalPages,
+    currentBookId,
     addPage,
     deletePage,
     setCurrentPage,
@@ -111,6 +137,10 @@ export const useBookStore = defineStore('book', () => {
     updatePageTitle,
     updateBookMetadata,
     reorderPages,
+    setCurrentBookId,
+    loadBookIntoStore,
+    hasBookInProgress,
+    getCurrentBookTitle,
     $reset,
   }
 })
