@@ -1,14 +1,14 @@
 <!-- src/components/layout/AppHeader.vue -->
 <template>
-  <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg">
+  <header class="bg-gradient-to-r from-emerald-600 to-green-700 text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
-        <!-- Logo and Brand - NOT a router-link anymore -->
+        <!-- Logo and Brand -->
         <div class="flex items-center space-x-3 cursor-pointer" @click="goHome">
           <span class="text-3xl">🌙</span>
           <div>
             <h1 class="text-xl font-bold tracking-tight">Crescent Books</h1>
-            <p class="text-xs text-indigo-200 hidden sm:block">Ebook Builder</p>
+            <p class="text-xs text-emerald-200 hidden sm:block">Ebook Builder</p>
           </div>
         </div>
 
@@ -16,7 +16,7 @@
         <nav class="hidden md:flex items-center space-x-6">
           <router-link 
             to="/" 
-            class="text-indigo-100 hover:text-white transition px-3 py-2 rounded-md text-sm font-medium no-underline"
+            class="text-emerald-100 hover:text-white transition px-3 py-2 rounded-md text-sm font-medium no-underline"
             active-class="bg-white/20 text-white"
             exact-active-class="bg-white/20 text-white"
           >
@@ -24,7 +24,7 @@
           </router-link>
           <router-link 
             to="/editor" 
-            class="text-indigo-100 hover:text-white transition px-3 py-2 rounded-md text-sm font-medium no-underline"
+            class="text-emerald-100 hover:text-white transition px-3 py-2 rounded-md text-sm font-medium no-underline"
             active-class="bg-white/20 text-white"
             exact-active-class="bg-white/20 text-white"
           >
@@ -44,7 +44,7 @@
           </button>
 
           <div class="flex items-center space-x-3">
-            <span class="text-sm text-indigo-200 hidden sm:inline">
+            <span class="text-sm text-emerald-200 hidden sm:inline">
               ✨ v1.0
             </span>
           </div>
@@ -53,10 +53,10 @@
     </div>
 
     <!-- Mobile Navigation -->
-    <div class="md:hidden bg-indigo-700/50 px-4 py-2 flex justify-around">
+    <div class="md:hidden bg-emerald-700/50 px-4 py-2 flex justify-around">
       <router-link 
         to="/" 
-        class="text-indigo-100 hover:text-white transition text-sm no-underline"
+        class="text-emerald-100 hover:text-white transition text-sm no-underline"
         active-class="text-white font-bold"
         exact-active-class="text-white font-bold"
       >
@@ -64,7 +64,7 @@
       </router-link>
       <router-link 
         to="/editor" 
-        class="text-indigo-100 hover:text-white transition text-sm no-underline"
+        class="text-emerald-100 hover:text-white transition text-sm no-underline"
         active-class="text-white font-bold"
         exact-active-class="text-white font-bold"
       >
@@ -79,8 +79,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
-// Dark mode state
 const isDarkMode = ref(false)
 
 const toggleTheme = () => {
@@ -107,18 +105,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Only apply active styles to navigation links, not the logo */
-nav a.router-link-active,
-nav a.router-link-exact-active {
+.router-link-active,
+.router-link-exact-active {
   @apply bg-white/20 text-white;
 }
 
-/* Remove underline from all links */
 a {
   text-decoration: none;
 }
 
-/* Hover effect for logo */
 .cursor-pointer {
   transition: opacity 0.2s ease;
 }
