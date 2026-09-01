@@ -1,6 +1,10 @@
 <!-- src/views/EditorView.vue -->
 <template>
-  <div class="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
+  <!-- Show entry page if no book is loaded -->
+  <EditorEntry v-if="!isBookLoaded" />
+  
+  <!-- Show full editor if book is loaded -->
+  <div v-else class="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
     <!-- Top Toolbar -->
     <EditorToolbar
       :auto-save-status="autoSaveStatus"
@@ -12,7 +16,7 @@
 
     <!-- Main Content Area -->
     <div class="flex flex-1 overflow-hidden">
-      <!-- Left Sidebar - Self-contained -->
+      <!-- Left Sidebar -->
       <EditorSidebar />
 
       <!-- Main Editor Area -->
@@ -74,18 +78,26 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useBookStore } from '@/stores/bookStore'
 import { useStorage } from '@/composables/useStorage'
 import EditorContent from '@/components/editor/EditorContent.vue'
 import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import EditorSidebar from '@/components/editor/EditorSidebar.vue'
+import EditorEntry from '@/components/editor/EditorEntry.vue'
 import ImportModal from '@/components/common/ImportModal.vue'
 import ExportModal from '@/components/common/ExportModal.vue'
 import BookPreview from '@/components/viewer/BookPreview.vue'
 import CoverGeneratorModal from '@/components/common/CoverGeneratorModal.vue'
 
+const route = useRoute()
 const store = useBookStore()
-const { autoSave } = useStorage()
+const { autoSave, loadBook } = useStorage()
+
+// Check if a book is loaded (has at least one page)
+const isBookLoaded = computed(() => {
+  return store.book.pages.length > 0
+})
 
 // Modal states
 const showImportModal = ref(false)
@@ -139,7 +151,19 @@ const updateSaveStatus = (status: string) => {
 // Auto-save setup
 let stopAutoSave: (() => void) | null = null
 
-onMounted(() => {
+// Load book from route param if exists
+const loadBookFromRoute = async () => {
+  const bookId = route.params.id as string
+  if (bookId && bookId !== 'new') {
+    const book = await loadBook(bookId)
+    if (book) {
+      store.book = book
+    }
+  }
+}
+
+onMounted(async () => {
+  await loadBookFromRoute()
   stopAutoSave = autoSave(store.book)
 })
 

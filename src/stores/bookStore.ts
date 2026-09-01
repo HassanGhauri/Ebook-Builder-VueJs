@@ -1,10 +1,10 @@
 // src/stores/bookStore.ts
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { IBook, IPage } from '@/types/book.types'
+import type { IBook, IPage, IMetadata } from '@/types/book.types'
 
 export const useBookStore = defineStore('book', () => {
-  // State
+  // State - Start with empty pages
   const book = ref<IBook>({
     id: crypto.randomUUID(),
     metadata: {
@@ -13,14 +13,7 @@ export const useBookStore = defineStore('book', () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
-    pages: [
-      {
-        id: crypto.randomUUID(),
-        title: 'Page 1',
-        content: '<h1>Welcome to your book!</h1><p>Start writing here...</p>',
-        order: 0,
-      },
-    ],
+    pages: [], // Start with empty pages
     currentPageIndex: 0,
   })
 
@@ -92,6 +85,21 @@ export const useBookStore = defineStore('book', () => {
     book.value.metadata.updatedAt = new Date().toISOString()
   }
 
+  // Reset method - creates a new empty book
+  function $reset() {
+    book.value = {
+      id: crypto.randomUUID(),
+      metadata: {
+        title: 'My New Book',
+        author: 'Anonymous',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      pages: [],
+      currentPageIndex: 0,
+    }
+  }
+
   return {
     book,
     currentPage,
@@ -103,5 +111,6 @@ export const useBookStore = defineStore('book', () => {
     updatePageTitle,
     updateBookMetadata,
     reorderPages,
+    $reset,
   }
 })

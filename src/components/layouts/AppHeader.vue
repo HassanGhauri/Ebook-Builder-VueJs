@@ -28,7 +28,7 @@
             active-class="bg-white/20 text-white"
             exact-active-class="bg-white/20 text-white"
           >
-            ✍️ Editor
+            ✍️ New Book
           </router-link>
         </nav>
 
@@ -68,7 +68,7 @@
         active-class="text-white font-bold"
         exact-active-class="text-white font-bold"
       >
-        ✍️ Editor
+        ✍️ New Book
       </router-link>
     </div>
   </header>
