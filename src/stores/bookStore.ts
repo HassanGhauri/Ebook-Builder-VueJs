@@ -72,6 +72,14 @@ export const useBookStore = defineStore('book', () => {
     }
   }
 
+  function updatePageTitleById(pageId: string, title: string) {
+    const page = book.value.pages.find((item) => item.id === pageId)
+    if (page) {
+      page.title = title
+      updateTimestamp()
+    }
+  }
+
   function updateBookMetadata(metadata: Partial<IMetadata>) {
     Object.assign(book.value.metadata, metadata)
     updateTimestamp()
@@ -135,6 +143,7 @@ export const useBookStore = defineStore('book', () => {
     setCurrentPage,
     updatePageContent,
     updatePageTitle,
+    updatePageTitleById,
     updateBookMetadata,
     reorderPages,
     setCurrentBookId,

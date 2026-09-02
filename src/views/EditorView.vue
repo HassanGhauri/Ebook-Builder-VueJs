@@ -24,7 +24,6 @@
         <div class="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
           <input
             v-model="pageTitle"
-            @input="updatePageTitle"
             type="text"
             placeholder="Page Title"
             class="text-xl font-bold w-full border-none outline-none dark:bg-transparent dark:text-white"
@@ -122,10 +121,6 @@ const pageTitle = computed({
 // Methods
 const updateContent = (content: string) => {
   store.updatePageContent(content)
-}
-
-const updatePageTitle = (title: string) => {
-  store.updatePageTitle(title)
 }
 
 const onBookImported = () => {
