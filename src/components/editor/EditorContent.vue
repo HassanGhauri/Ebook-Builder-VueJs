@@ -123,42 +123,6 @@
         </button>
       </div>
 
-      <!-- Text Color -->
-      <div class="flex items-center gap-1 border-r border-gray-200 dark:border-gray-600 pr-2">
-        <input
-          type="color"
-          @input="editor?.chain().focus().setColor($event.target.value).run()"
-          :value="editor?.getAttributes('textStyle').color || '#000000'"
-          class="w-8 h-8 p-0 border rounded cursor-pointer dark:bg-gray-700 dark:border-gray-600"
-          title="Text Color"
-        />
-        <button
-          @click="editor?.chain().focus().unsetColor().run()"
-          class="px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition text-xs"
-          title="Reset Color"
-        >
-          ✕
-        </button>
-      </div>
-
-      <!-- Background Color / Highlight -->
-      <div class="flex items-center gap-1 border-r border-gray-200 dark:border-gray-600 pr-2">
-        <input
-          type="color"
-          @input="editor?.chain().focus().setHighlight({ color: $event.target.value }).run()"
-          :value="editor?.getAttributes('highlight').color || '#ffff00'"
-          class="w-8 h-8 p-0 border rounded cursor-pointer dark:bg-gray-700 dark:border-gray-600"
-          title="Highlight Color"
-        />
-        <button
-          @click="editor?.chain().focus().unsetHighlight().run()"
-          class="px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition text-xs"
-          title="Remove Highlight"
-        >
-          ✕
-        </button>
-      </div>
-
       <!-- History (Undo/Redo) -->
       <div class="flex items-center gap-1">
         <button
@@ -193,10 +157,6 @@ import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
-// IMPORTANT: These two use named exports, not default exports
-import { TextStyle } from '@tiptap/extension-text-style'
-import { Color } from '@tiptap/extension-color'
-import Highlight from '@tiptap/extension-highlight'
 
 const props = defineProps<{
   modelValue: string
@@ -216,11 +176,6 @@ const editor = useEditor({
     Underline,
     TextAlign.configure({
       types: ['heading', 'paragraph'],
-    }),
-    TextStyle,  // Named export, not default
-    Color,      // Named export, not default
-    Highlight.configure({
-      multicolor: true,
     }),
   ],
   content: props.modelValue,

@@ -187,21 +187,28 @@ const themeColors = {
 const totalPages = computed(() => props.book.pages.length)
 const currentPage = computed(() => props.book.pages[currentPageIndex.value])
 
-// Process content - Preserve custom colors while setting default text color
+// Remove editor-only color and highlight marks from stored content before previewing.
 const processedContent = computed(() => {
   if (!currentPage.value) return ''
-  
-  let content = currentPage.value.content
-  
-  // Wrap content with a base color that will be used as default
-  // but allow inline styles to override
+
+  const document = new DOMParser().parseFromString(currentPage.value.content, 'text/html')
+  document.querySelectorAll('*').forEach((element) => {
+    const styledElement = element as HTMLElement
+    styledElement.style.removeProperty('color')
+    styledElement.style.removeProperty('background-color')
+    styledElement.style.removeProperty('background')
+    styledElement.removeAttribute('data-color')
+
+    if (styledElement.tagName === 'MARK' || (styledElement.tagName === 'SPAN' && !styledElement.attributes.length)) {
+      styledElement.replaceWith(...Array.from(styledElement.childNodes))
+    }
+  })
+
   const defaultColor = themeColors[currentTheme.value].text
-  
-  // Important: Use a wrapper div with a class that sets default color
-  // but doesn't override inline styles with !important
+
   return `
     <div class="preview-content-wrapper" style="color: ${defaultColor};">
-      ${content}
+      ${document.body.innerHTML}
     </div>
   `
 })
