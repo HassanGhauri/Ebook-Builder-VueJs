@@ -7,6 +7,27 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx'
 import JSZip from 'jszip'
 import type { IBook } from '@/types/book.types'
 
+function removeTextColorAndHighlight(content: string): string {
+  const document = new DOMParser().parseFromString(content, 'text/html')
+
+  document.querySelectorAll('*').forEach((element) => {
+    const styledElement = element as HTMLElement
+    styledElement.style.removeProperty('color')
+    styledElement.style.removeProperty('background-color')
+    styledElement.style.removeProperty('background')
+    styledElement.removeAttribute('data-color')
+
+    if (
+      styledElement.tagName === 'MARK' ||
+      (styledElement.tagName === 'SPAN' && !styledElement.attributes.length)
+    ) {
+      styledElement.replaceWith(...Array.from(styledElement.childNodes))
+    }
+  })
+
+  return document.body.innerHTML
+}
+
 export function useExport() {
   const isExporting = ref(false)
   const exportProgress = ref(0)
@@ -46,7 +67,7 @@ export function useExport() {
               ${page.title}
             </h2>
             <div style="margin-top: 20px; font-size: 14px; line-height: 1.8;">
-              ${page.content}
+              ${removeTextColorAndHighlight(page.content)}
             </div>
           </div>
         `
@@ -116,7 +137,7 @@ export function useExport() {
               ${page.title}
             </h2>
             <div style="margin-top: 20px; font-size: 14px; line-height: 1.8;">
-              ${page.content}
+              ${removeTextColorAndHighlight(page.content)}
             </div>
           </div>
         `
@@ -207,7 +228,7 @@ export function useExport() {
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head><title>${escapeXml(page.title)}</title></head>
-  <body><h1>${escapeXml(page.title)}</h1>${page.content}</body>
+  <body><h1>${escapeXml(page.title)}</h1>${removeTextColorAndHighlight(page.content)}</body>
 </html>`,
         )
       })
