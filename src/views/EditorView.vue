@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBookStore } from '@/stores/bookStore'
 import { useStorage } from '@/composables/useStorage'
@@ -139,6 +139,19 @@ const openPreview = () => {
 // Auto-save setup
 let stopAutoSave: (() => void) | null = null
 
+const startAutoSave = () => {
+  if (!stopAutoSave) {
+    stopAutoSave = autoSave(() => store.book)
+  }
+}
+
+// The editor view can mount before a book is created or loaded.
+watch(isBookLoaded, (loaded) => {
+  if (loaded) {
+    startAutoSave()
+  }
+})
+
 // Load book from route param if exists (only for /editor/:id)
 const loadBookFromRoute = async () => {
   const bookId = route.params.id as string
@@ -154,10 +167,8 @@ onMounted(async () => {
   // Only load from route param if there's an ID (for /editor/:id)
   await loadBookFromRoute()
   
-  // Start auto-save if book is loaded
-  if (isBookLoaded.value) {
-    stopAutoSave = autoSave(store.book)
-  }
+  // Start auto-save immediately when a book was loaded from the route.
+  startAutoSave()
 })
 
 onUnmounted(() => {

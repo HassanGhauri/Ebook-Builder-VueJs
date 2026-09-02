@@ -323,14 +323,26 @@ onUnmounted(() => {
   color: #2563eb !important;
 }
 
-/* Headings */
-.preview-content-wrapper h1,
-.preview-content-wrapper h2,
-.preview-content-wrapper h3,
-.preview-content-wrapper h4,
-.preview-content-wrapper h5,
-.preview-content-wrapper h6 {
-  font-weight: bold;
+/* v-html content needs deep selectors because Vue cannot scope its nodes. */
+:deep(.preview-content-wrapper h1) {
+  margin: 0 0 1rem;
+  font-size: 2em;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+:deep(.preview-content-wrapper h2) {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.5em;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+:deep(.preview-content-wrapper h3) {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1.25em;
+  line-height: 1.4;
+  font-weight: 700;
 }
 
 /* Paragraphs */

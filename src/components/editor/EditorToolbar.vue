@@ -109,7 +109,7 @@ watch(
       clearTimeout(statusTimeout!)
       statusTimeout = setTimeout(() => {
         saveStatus.value = '💾 Saved'
-      }, 1500)
+      }, 2500)
     }
   },
   { deep: true }
