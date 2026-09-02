@@ -54,7 +54,6 @@ export function useStorage() {
       const books = await db.table('books').toArray()
       if (books.length === 0) return null
 
-      // Sort by updatedAt descending (most recent first)
       const sorted = books.sort(
         (a, b) =>
           new Date(b.metadata.updatedAt).getTime() - new Date(a.metadata.updatedAt).getTime(),
@@ -69,6 +68,7 @@ export function useStorage() {
   // Save book to IndexedDB
   async function saveBook(book: IBook): Promise<void> {
     try {
+      // Ensure we have a clean object
       const cleanBook = sanitizeBook(book)
       await db.table('books').put(cleanBook)
       currentBookId.value = cleanBook.id
@@ -115,6 +115,7 @@ export function useStorage() {
 
           isSaving = true
           try {
+            // Convert to plain object before saving
             const plainBook = JSON.parse(JSON.stringify(newBook))
             await saveBook(plainBook)
           } catch (error) {

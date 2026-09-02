@@ -57,22 +57,26 @@
         :style="{
           fontSize: fontSize + 'px',
           backgroundColor: themeColors[currentTheme].pageBackground,
-          color: themeColors[currentTheme].text,
           padding: '40px 60px',
           borderRadius: '8px',
           minHeight: '500px',
           boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          transition: 'background-color 0.3s ease, color 0.3s ease'
+          transition: 'background-color 0.3s ease'
         }"
       >
+        <!-- Book Title -->
         <div class="text-center mb-12">
           <h1 
             class="text-4xl font-bold mb-2"
-            :style="{ color: themeColors[currentTheme].heading }"
+            :style="{ 
+              color: themeColors[currentTheme].heading,
+            }"
           >
             {{ book.metadata.title }}
           </h1>
-          <p class="text-lg" :style="{ color: themeColors[currentTheme].subtext }">
+          <p class="text-lg" :style="{ 
+            color: themeColors[currentTheme].subtext,
+          }">
             By {{ book.metadata.author }}
           </p>
           <div class="mt-4" :style="{ borderColor: themeColors[currentTheme].divider }">
@@ -93,7 +97,6 @@
           <div 
             class="prose max-w-none"
             :style="{ 
-              color: themeColors[currentTheme].text,
               lineHeight: '1.8'
             }"
             v-html="processedContent"
@@ -149,10 +152,12 @@ const emit = defineEmits<{
   (e: 'export'): void
 }>()
 
+// State
 const currentPageIndex = ref(0)
 const fontSize = ref(18)
 const currentTheme = ref<'light' | 'dark'>('light')
 
+// Theme colors
 const themeColors = {
   light: {
     background: '#f0f0f0',
@@ -178,14 +183,30 @@ const themeColors = {
   }
 }
 
+// Computed
 const totalPages = computed(() => props.book.pages.length)
 const currentPage = computed(() => props.book.pages[currentPageIndex.value])
 
+// Process content - Preserve custom colors while setting default text color
 const processedContent = computed(() => {
   if (!currentPage.value) return ''
-  return currentPage.value.content
+  
+  let content = currentPage.value.content
+  
+  // Wrap content with a base color that will be used as default
+  // but allow inline styles to override
+  const defaultColor = themeColors[currentTheme.value].text
+  
+  // Important: Use a wrapper div with a class that sets default color
+  // but doesn't override inline styles with !important
+  return `
+    <div class="preview-content-wrapper" style="color: ${defaultColor};">
+      ${content}
+    </div>
+  `
 })
 
+// Methods
 const nextPage = () => {
   if (currentPageIndex.value < totalPages.value - 1) {
     currentPageIndex.value++
@@ -227,6 +248,7 @@ const hoverButton = (event: MouseEvent, isHover: boolean) => {
   }
 }
 
+// Keyboard navigation
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
     nextPage()
@@ -240,6 +262,7 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
+// Lifecycle
 import { onMounted, onUnmounted } from 'vue'
 
 watch(() => props.book, () => {
@@ -273,52 +296,122 @@ onUnmounted(() => {
 }
 
 .book-view {
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 /* ============================================
-   FIX: Prevent dark mode from affecting preview
+   Preview Content Styles - Preserve custom colors
    ============================================ */
 
-/* Force the book page to always have white background */
-.book-view {
-  background-color: #ffffff !important;
+/* The wrapper div sets default color, but doesn't force it with !important */
+.preview-content-wrapper {
+  color: inherit; /* Inherits from parent */
 }
 
-/* Force all text on the book page to be dark */
-.book-view * {
-  color: #1a1a1a !important;
+/* Allow inline styles to override the default color */
+.preview-content-wrapper * {
+  /* No forced color here - let inline styles work */
 }
 
-/* But allow links to be blue */
-.book-view a {
+/* Override for links - keep them blue for visibility */
+.preview-content-wrapper a {
   color: #3b82f6 !important;
+  text-decoration: underline;
 }
 
-.book-view a:hover {
+.preview-content-wrapper a:hover {
   color: #2563eb !important;
 }
 
-/* Override dark mode for specific elements */
-.book-view h1,
-.book-view h2,
-.book-view h3,
-.book-view h4,
-.book-view h5,
-.book-view h6 {
-  color: #0a0a0a !important;
+/* Headings */
+.preview-content-wrapper h1,
+.preview-content-wrapper h2,
+.preview-content-wrapper h3,
+.preview-content-wrapper h4,
+.preview-content-wrapper h5,
+.preview-content-wrapper h6 {
+  font-weight: bold;
 }
 
-.book-view p,
-.book-view li,
-.book-view span,
-.book-view div {
-  color: #1a1a1a !important;
+/* Paragraphs */
+.preview-content-wrapper p {
+  margin: 0 0 1rem;
+  line-height: 1.8;
 }
 
-/* Keep the surrounding area dark when in dark mode */
-.preview-content.dark {
-  background-color: #1a1a1a !important;
+/* Lists */
+.preview-content-wrapper ul,
+.preview-content-wrapper ol {
+  margin: 0 0 1rem 1.5rem;
+}
+
+.preview-content-wrapper li {
+  margin: 0 0 0.5rem;
+}
+
+/* Blockquotes */
+.preview-content-wrapper blockquote {
+  border-left: 4px solid #d1d5db;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+}
+
+/* Code blocks */
+.preview-content-wrapper code {
+  font-family: monospace;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  background-color: rgba(128, 128, 128, 0.15);
+}
+
+.preview-content-wrapper pre {
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: rgba(128, 128, 128, 0.1);
+  overflow-x: auto;
+}
+
+.preview-content-wrapper pre code {
+  background: transparent;
+  padding: 0;
+}
+
+/* Images */
+.preview-content-wrapper img {
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+/* Horizontal rule */
+.preview-content-wrapper hr {
+  margin: 2rem 0;
+  border: none;
+  border-top: 2px solid #e5e5e5;
+}
+
+/* Tables */
+.preview-content-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.preview-content-wrapper th,
+.preview-content-wrapper td {
+  padding: 0.5rem;
+  border: 1px solid #e5e5e5;
+}
+
+.preview-content-wrapper th {
+  font-weight: 700;
+}
+
+/* Button transitions */
+.book-view button {
+  transition: all 0.2s ease;
 }
 
 /* Scrollbar styling */

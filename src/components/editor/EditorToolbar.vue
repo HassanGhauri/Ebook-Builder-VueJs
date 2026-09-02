@@ -123,7 +123,9 @@ const handleSave = async () => {
   saveStatus.value = '💾 Saving...'
   
   try {
-    await saveBook(store.book)
+    // IMPORTANT: Create a plain object copy to avoid reactivity issues
+    const plainBook = JSON.parse(JSON.stringify(store.book))
+    await saveBook(plainBook)
     saveStatus.value = '✅ Saved!'
     
     // Reset after 2 seconds
