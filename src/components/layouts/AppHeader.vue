@@ -1,11 +1,11 @@
 <!-- src/components/layout/AppHeader.vue -->
 <template>
-  <header class="bg-gradient-to-r from-emerald-600 to-green-700 text-white shadow-lg">
+  <header class="bg-gradient-to-r from-emerald-600 to-green-700 text-white shadow-2xl drop-shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
+      <div class="flex items-center justify-between h-24">
         <!-- Logo and Brand -->
-        <div class="flex items-center space-x-3 cursor-pointer" @click="goHome">
-          <span class="text-3xl">🌙</span>
+        <div class="flex items-center space-x-2 cursor-pointer" @click="goHome">
+          <img :src="crescentLogo" alt="Crescent Logo" class="h-40 w-40 object-contain pl-4"/>
           <div>
             <h1 class="text-xl font-bold tracking-tight">Crescent Books</h1>
             <p class="text-xs text-emerald-200 hidden sm:block">Ebook Builder</p>
@@ -77,6 +77,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import crescentLogo from '../../assets/Crescent.png'
 
 const router = useRouter()
 const isDarkMode = ref(false)

@@ -6,7 +6,7 @@
       <div class="flex justify-between items-center mb-8">
         <div>
           <div class="flex items-center space-x-3">
-            <span class="text-4xl">🌙</span>
+            <img :src="bookPlantsLogo" alt="Library Icon" class="h-40 w-40 object-contain"/>
             <div>
               <h1 class="text-3xl font-bold text-gray-900 dark:text-white">My Library</h1>
               <p class="text-gray-600 dark:text-gray-400 mt-1">All your saved books in one place</p>
@@ -46,10 +46,10 @@
         >
           <!-- Book Cover -->
           <div
-            class="h-48 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white relative"
+            class="h-48 bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white relative"
           >
-            <!-- Decorative crescent -->
-            <span class="absolute top-2 right-2 text-6xl opacity-20">🌙</span>
+            <!-- Decorative book plants icon -->
+            <img :src="bookPlantsLogo" alt="Books" class="absolute top-2 right-2 h-20 w-20 opacity-30 object-contain"/>
             <div class="text-center p-4 relative z-10">
               <h3 class="text-xl font-bold truncate">{{ book.metadata.title }}</h3>
               <p class="text-sm opacity-80">by {{ book.metadata.author }}</p>
@@ -116,6 +116,7 @@
 </template>
 
 <script setup lang="ts">
+import bookPlantsLogo from '../assets/BooksPlants.png'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStorage } from '@/composables/useStorage'
