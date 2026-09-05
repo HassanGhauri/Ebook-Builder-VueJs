@@ -67,9 +67,15 @@
               <span class="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
                 {{ index + 1 }}
               </span>
-              <span class="truncate text-sm dark:text-gray-200">
-                {{ page.title || 'Untitled' }}
-              </span>
+              <input
+                :value="page.title"
+                @click.stop
+                @input="updatePageTitle(page.id, $event)"
+                type="text"
+                aria-label="Page title"
+                placeholder="Untitled"
+                class="min-w-0 flex-1 bg-transparent border-none outline-none text-sm dark:text-gray-200 placeholder-gray-400"
+              />
               <!-- Active indicator -->
               <span v-if="store.currentPage?.id === page.id" class="text-xs text-blue-500 dark:text-blue-400 flex-shrink-0">
                 ●
@@ -239,6 +245,11 @@ const updateTitle = () => {
 
 const updateAuthor = () => {
   store.updateBookMetadata({ author: bookAuthor.value })
+}
+
+const updatePageTitle = (pageId: string, event: Event) => {
+  const input = event.target as HTMLInputElement
+  store.updatePageTitleById(pageId, input.value)
 }
 
 // Helper to get content preview

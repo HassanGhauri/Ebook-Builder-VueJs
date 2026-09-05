@@ -1,5 +1,5 @@
 // src/composables/useStorage.ts
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import Dexie from 'dexie'
 import type { IBook } from '@/types/book.types'
 
@@ -15,10 +15,8 @@ export function useStorage() {
 
   /**
    * Clean the book object to make it serializable for IndexedDB
-   * This removes Vue reactivity and ensures only plain data is stored
    */
   function sanitizeBook(book: IBook): IBook {
-    // Create a clean copy with only the data we need
     return {
       id: book.id || crypto.randomUUID(),
       metadata: {
@@ -50,16 +48,30 @@ export function useStorage() {
     }
   }
 
+  // Get the most recently updated book
+  async function getLatestBook(): Promise<IBook | null> {
+    try {
+      const books = await db.table('books').toArray()
+      if (books.length === 0) return null
+
+      const sorted = books.sort(
+        (a, b) =>
+          new Date(b.metadata.updatedAt).getTime() - new Date(a.metadata.updatedAt).getTime(),
+      )
+      return sorted[0]
+    } catch (error) {
+      console.error('Failed to get latest book:', error)
+      return null
+    }
+  }
+
   // Save book to IndexedDB
   async function saveBook(book: IBook): Promise<void> {
     try {
-      // Sanitize the book data before saving
+      // Ensure we have a clean object
       const cleanBook = sanitizeBook(book)
-
-      // Store the clean version
       await db.table('books').put(cleanBook)
       currentBookId.value = cleanBook.id
-
       console.log('Book saved successfully:', cleanBook.metadata.title)
     } catch (error) {
       console.error('Failed to save book:', error)
@@ -86,7 +98,7 @@ export function useStorage() {
     }
   }
 
-  // Auto-save watcher with proper debouncing
+  // Auto-save watcher
   function autoSave(book: any) {
     let saveTimeout: ReturnType<typeof setTimeout> | null = null
     let isSaving = false
@@ -94,18 +106,16 @@ export function useStorage() {
     return watch(
       book,
       async (newBook) => {
-        // Clear existing timeout
         if (saveTimeout) {
           clearTimeout(saveTimeout)
         }
 
-        // Debounce save by 2 seconds
         saveTimeout = setTimeout(async () => {
           if (isSaving) return
 
           isSaving = true
           try {
-            // Convert Vue proxy to plain object
+            // Convert to plain object before saving
             const plainBook = JSON.parse(JSON.stringify(newBook))
             await saveBook(plainBook)
           } catch (error) {
@@ -123,6 +133,7 @@ export function useStorage() {
     isLoaded,
     currentBookId,
     loadBook,
+    getLatestBook,
     saveBook,
     getAllBooks,
     deleteBook,
